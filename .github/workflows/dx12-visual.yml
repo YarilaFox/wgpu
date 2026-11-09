@@ -1,0 +1,69 @@
+name: DX12 visual regression
+
+on:
+  push:
+    branches: [fix/dx12-window-scaling]
+    paths: ['wgpu-hal/**', 'scripts/wgpu-hal-visual/**', '.github/workflows/dx12-visual.yml']
+  workflow_dispatch:
+    inputs:
+      visual_check:
+        description: 'Capture real DX12 windows; non-reproducing baselines are inconclusive'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    if: github.repository == 'YarilaFox/wgpu'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          persist-credentials: false
+      - name: Verify the fork against the released compiler inputs
+        run: python3 scripts/wgpu-hal-visual/verify_source.py
+
+  windows:
+    name: Windows DX12 build, tests and optional screenshots
+    needs: source
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: scripts/wgpu-hal-visual -> target
+          key: dx12-pinned-fork
+      - name: Check harness formatting
+        run: cargo fmt --manifest-path scripts/wgpu-hal-visual/Cargo.toml -- --check
+      - name: Test regression verdicts
+        run: cargo test --manifest-path scripts/wgpu-hal-visual/Cargo.toml --locked
+      - name: Lint the harness
+        run: cargo clippy --manifest-path scripts/wgpu-hal-visual/Cargo.toml --all-targets --locked -- -D warnings
+      - name: Build both sources and verify their dependency graphs
+        shell: pwsh
+        run: ./scripts/wgpu-hal-visual/run.ps1 -BuildOnly -OutputDirectory "$env:RUNNER_TEMP/dx12-build-check" -TargetDirectory "$env:GITHUB_WORKSPACE/scripts/wgpu-hal-visual/target"
+      - name: Capture and compare DX12 windows
+        if: github.event_name == 'workflow_dispatch' && inputs.visual_check
+        shell: pwsh
+        run: ./scripts/wgpu-hal-visual/run.ps1 -OutputDirectory "$env:RUNNER_TEMP/dx12-visual-results" -TargetDirectory "$env:GITHUB_WORKSPACE/scripts/wgpu-hal-visual/target"
+      - name: Upload screenshots and numerical verdict
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.visual_check
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: dx12-window-captures
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/dx12-visual-results/**/*.png
+            ${{ runner.temp }}/dx12-visual-results/**/*.json
+            ${{ runner.temp }}/dx12-visual-results/RESULTS.md
+            ${{ runner.temp }}/dx12-visual-results/*.log
+          if-no-files-found: warn

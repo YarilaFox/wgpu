@@ -1,3 +1,5 @@
+> **DX12 compatibility fork (v30.0.1):** [fix, exact dependency pins, screenshots and test instructions](DX12-PATCH.md). This branch is not an upstream release.
+
 # wgpu
 
 <img align="right" width="20%" src="logo.png">
