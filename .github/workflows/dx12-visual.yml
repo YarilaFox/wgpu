@@ -2,8 +2,10 @@ name: DX12 visual regression
 
 on:
   push:
-    branches: [fix/dx12-window-scaling]
+    branches: [upstream/v30.0.1]
     paths: ['wgpu-hal/**', 'scripts/wgpu-hal-visual/**', '.github/workflows/dx12-visual.yml']
+  pull_request:
+    branches: [fix/dx12-hwnd-scaling, upstream/v30.0.1]
   workflow_dispatch:
     inputs:
       visual_check:
@@ -16,7 +18,7 @@ permissions:
 
 jobs:
   source:
-    if: github.repository == 'YarilaFox/wgpu'
+    if: github.repository == 'YarilaFox/wgpu' && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'test/dx12-visual'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -57,11 +59,11 @@ jobs:
         shell: pwsh
         run: ./scripts/wgpu-hal-visual/run.ps1 -BuildOnly -OutputDirectory "$env:RUNNER_TEMP/dx12-build-check" -TargetDirectory "$env:GITHUB_WORKSPACE/scripts/wgpu-hal-visual/target"
       - name: Capture and compare DX12 windows
-        if: github.event_name == 'workflow_dispatch' && inputs.visual_check
+        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.visual_check)
         shell: pwsh
         run: ./scripts/wgpu-hal-visual/run.ps1 -OutputDirectory "$env:RUNNER_TEMP/dx12-visual-results" -TargetDirectory "$env:GITHUB_WORKSPACE/scripts/wgpu-hal-visual/target"
       - name: Upload screenshots and numerical verdict
-        if: always() && github.event_name == 'workflow_dispatch' && inputs.visual_check
+        if: always() && (github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.visual_check))
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: dx12-window-captures

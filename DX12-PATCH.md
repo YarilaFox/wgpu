@@ -51,8 +51,9 @@ There is no full Craft App build. The
 measurement, not a hosted-runner claim.
 
 The fork's **DX12 visual regression** workflow runs source verification and
-Windows build/tests. Its manual `visual_check` option captures screenshots and
-retains them in **dx12-window-captures**, even after failure/inconclusive results.
+Windows build/tests. It captures screenshots on the test PR and retains them in
+**dx12-window-captures**, even after failed or inconclusive results. The manual
+`visual_check` option is available once the workflow is on the default branch.
 A non-reproducing baseline is inconclusive, never a successful regression test.
 
 ## Hosted Windows result

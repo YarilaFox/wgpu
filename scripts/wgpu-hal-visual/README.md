@@ -95,11 +95,9 @@ The source job audits the compiler inputs. The ordinary Windows job tests and
 lints the harness, builds both backends and verifies their dependency graphs.
 The same non-graphical checks can be run locally with
 `cargo +stable test --manifest-path scripts/wgpu-hal-visual/Cargo.toml --locked`.
-For an actual capture, open **Actions → DX12 visual regression → Run workflow**
-and enable **visual_check**. A workflow must be available on the default branch
-for manual dispatch. This is a workflow in the compatibility fork; it does not
-change Craft repositories' shared CI. Capture is opt-in because hosted display
-adapters need not reproduce the original driver/window behavior.
+The test PR in the compatibility fork captures windows automatically. Once the
+workflow is available on the default branch, you can also open
+**Actions → DX12 visual regression → Run workflow** and enable **visual_check**.
 
 Images, logs and the numerical report are uploaded as **dx12-window-captures**,
 including on failed or inconclusive runs, and the verdict is placed in the job
