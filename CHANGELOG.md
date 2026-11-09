@@ -1,5 +1,9 @@
 # Change Log
 
+## Downstream DX12 compatibility branch (30.0.1)
+
+- Avoid resampling HWND swap-chain presentation in restored Windows windows; retain required STRETCH scaling for composition targets. See [DX12-PATCH.md](DX12-PATCH.md) for scope and regression captures.
+
 <!--
 Please add your PR to the changelog! Choose from a top level and bottom
 level category, then write your changes like follows:
