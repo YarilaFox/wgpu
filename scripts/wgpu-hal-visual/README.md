@@ -14,6 +14,10 @@ deliberately pinned: a simpler raw-wgpu window did not reproduce the blur.
 On an interactive Windows desktop with Rust 1.95 or newer and the native C++
 linker installed:
 
+The runner explicitly uses `+stable` by default. Upstream's root
+`rust-toolchain.toml` pins Rust 1.93 for wgpu itself, which is too old for this
+isolated egui test. `-Toolchain` overrides the runner's choice.
+
 ```powershell
 ./scripts/wgpu-hal-visual/run.ps1
 ```
@@ -90,7 +94,7 @@ the reported issue concerns restored windows.
 The source job audits the compiler inputs. The ordinary Windows job tests and
 lints the harness, builds both backends and verifies their dependency graphs.
 The same non-graphical checks can be run locally with
-`cargo test --manifest-path scripts/wgpu-hal-visual/Cargo.toml --locked`.
+`cargo +stable test --manifest-path scripts/wgpu-hal-visual/Cargo.toml --locked`.
 For an actual capture, open **Actions → DX12 visual regression → Run workflow**
 and enable **visual_check**. A workflow must be available on the default branch
 for manual dispatch. This is a workflow in the compatibility fork; it does not

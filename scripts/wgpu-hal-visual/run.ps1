@@ -2,7 +2,7 @@
 param(
     [string]$OutputDirectory,
     [string]$TargetDirectory,
-    [string]$Toolchain,
+    [string]$Toolchain = 'stable',
     [switch]$BuildOnly
 )
 
