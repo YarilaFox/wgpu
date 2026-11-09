@@ -11,7 +11,8 @@ deliberately pinned: a simpler raw-wgpu window did not reproduce the blur.
 
 ## Run locally
 
-On an interactive Windows desktop with Rust and the native C++ linker installed:
+On an interactive Windows desktop with Rust 1.95 or newer and the native C++
+linker installed:
 
 ```powershell
 ./scripts/wgpu-hal-visual/run.ps1
